@@ -1,7 +1,7 @@
 # -- TRAINING for full [200, 400] window
-from keras.layers import containers
+#import containers
 from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, AutoEncoder, MaxoutDense, Activation, Merge
+from keras.layers.core import Dense, Dropout, MaxoutDense, Activation, Merge
 from keras.layers.advanced_activations import PReLU
 from keras.layers.embeddings import Embedding
 from keras.layers.noise import GaussianNoise
@@ -16,11 +16,12 @@ import numpy as np
 '%run ./utils/sampling.py'
 '%run ./likelihood.py'
 
-PLOT_DIR = './plots/8-27/%s'
+PLOT_DIR = '/plots/12-27/%s'
 
 
 # dat = np.load('../deep-jets/data/processed/wprime-800-qcd-8-17.npy')
-dat = np.load('../jet-simulations/final-samples-all.npy')
+#dat = np.load('../jet-simulations/final-samples-all.npy')
+dat= np.load('../../jetimages.npy')
 print '{} jets before preselection'.format(dat.shape[0])
 
 
@@ -254,7 +255,7 @@ h = dl.fit(X_train, y_train, batch_size=512, nb_epoch=20, show_accuracy=True,
                validation_split=0.25, 
                callbacks = [
                    EarlyStopping(verbose=True, patience=6, monitor='val_loss'),
-                   ModelCheckpoint('./SLACNet[200-400]-flat-weights.h5', monitor='val_loss', verbose=True, save_best_only=True)
+                   ModelCheckpoint('SLACNet[200-400]-flat-weights.h5', monitor='val_loss', verbose=True, save_best_only=True)
                ], 
                sample_weight=weights[:n_train])
 
