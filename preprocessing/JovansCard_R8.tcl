@@ -281,7 +281,7 @@ module Calorimeter Calorimeter {
 #    add EtaPhiBins $eta $PhiBins
 #  }
 
-    for {set i -31} {$i <= 31} {incr i} {
+    for {set i -28} {$i <= 29} {incr i} {
     set eta [expr {$i * 0.0714}]
     add EtaPhiBins $eta $PhiBins
   }
