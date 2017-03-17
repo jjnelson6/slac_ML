@@ -56,22 +56,29 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
 	  jet = (Jet*) branchJetAK8->At(i);
 
 	  //	  momentum.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
+	 
+	  //Selecting Jet PT
 	  if (jet->PT >= 200 and jet->PT <= 300)
 	    {
 	  
-
+	      // Constraints on Eta
 	   for(etaBinEdge = -etaBins+12 ; etaBinEdge <etaBins-12; ++etaBinEdge)
 	     {
 	       if ( (jet->Eta <= etaBinStep*(etaBinEdge+1)) and jet->Eta >= etaBinStep*etaBinEdge)
 		 {
+		   //Constraints on Phi
 		   for (phiBinEdge = -phiBins; phiBinEdge < pi; ++phiBinEdge)
 		     { 
 		       if ((jet->Phi <= phiBinStep*(phiBinEdge+1)) and jet->Phi >= phiBinStep*phiBinEdge)
 			 {
 			   count_jet+=1;
+			   
+			   //Looping through CaloTowers
 			   for (k = 0 ; k <branchCaloTower->GetEntriesFast(); ++k)
 			     {
 			       tower= (Tower*) branchCaloTower->At(k);
+			    
+			       //Checking if Jet is within edges of tower
 			       if( (jet->Eta >= tower->Edges[0] and jet->Eta<= tower->Edges[1]) and (jet->Phi>=tower->Edges[2] and jet->Phi<=tower->Edges[3]))
 				 {
 				   count_tower+=1;
