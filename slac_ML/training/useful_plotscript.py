@@ -11,6 +11,31 @@ from matplotlib.colors import LogNorm
 from viz import *
 from likelihood import *
 
+def plot_mean_jet(rec, field = 'image', title = 'Average Jet Image'):
+    fig = plt.figure(figsize=(8, 8), dpi=100)
+    ax = fig.add_subplot(111)
+    im = ax.imshow(np.mean(rec[field], axis = 0),  norm=LogNorm(vmin=0.00001, vmax=1), interpolation='nearest')
+    plt.title(r''+title)
+    return fig
+
+
+def plot_jet(rec, title = 'Jet Image', log=True):
+    fig = plt.figure(figsize=(8, 8), dpi=100)
+    ax = fig.add_subplot(111)
+    if log:
+        im = ax.imshow(rec,  norm=LogNorm(vmin=0.00001, vmax=1), interpolation='nearest')
+    else:
+        im = ax.imshow(rec, interpolation='nearest')
+    plt.title(r''+title)
+    return fig
+
+#plot_mean_jet(data[data['signal']==0],title="Avg Jet Image Bkg").savefig('test_avg_bkg.pdf')
+#plot_mean_jet(data[data['signal']==1],title="Avg Jet Image Sig").savefig('test_avg_sig.pdf')
+#plot_jet(data[data['signal']==0],title="Jet Image Bkg").savefig('test_bkg.pdf')
+#plot_jet(data[data['signal']==1],title="Jet Image Bkg").savefig('test_signal.pdf')
+
+
+
 PLOT_DIR = '/user_data/nelson/training_output/'
 network_eval= '10k-maxout-test.npy'
 data = np.load('../../../jetimages.npy')
