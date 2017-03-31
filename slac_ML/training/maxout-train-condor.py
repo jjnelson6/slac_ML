@@ -57,7 +57,7 @@ for nfile in npzfiles:
     jdf.write(
         
 """universe = vanilla
-Executable = %(RUNDIR)s/maxout_train_condor.sh 
+Executable = %(RUNDIR)s/maxout-train-condor.sh 
 Should_Transfer_Files = NO
 Transfer_Input_Files = 
 Output = %(FILENAME)s.out
