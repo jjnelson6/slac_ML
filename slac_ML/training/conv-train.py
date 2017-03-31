@@ -19,8 +19,6 @@ from sklearn.metrics import roc_curve, auc
 from viz import *
 import theano
 
-#theano.config.compute_test_value = 'warn'
-
 class ROCModelCheckpoint(Callback):
     def __init__(self, filepath, X, y, weights, verbose=True):
         super(Callback, self).__init__()
@@ -118,39 +116,18 @@ weights[signal] = get_weights(reference_distribution, pt[signal],
 weights[background] = get_weights(reference_distribution, pt[background], 
     bins=np.linspace(250, 300, 200))
 
-val=2000000
+num_inputs=2000000
+
 idx = range(X.shape[0])
 np.random.shuffle(idx)
 X = X[idx][:val]
-#print idx
-
-#print "w len:",len(weights)
-#print "idk:",weights[idx]
-#print "len widk:",len(weights[idx])
-# -- if you want to normalize
-# X = X.reshape(X.shape[0], -1)
-# X = (X / np.sqrt((X ** 2).sum(-1))[:, None]).reshape((X.shape[0], 1, 25, 25))
-y = y[idx][:val]
-weights = weights[idx].astype('float32')[:val]
-#2000000
-# images = np.zeros((X.shape[0], 1, 32, 32))
-#print "weights:",len(weights)
-#print "y:", y
-#print "X:", X
-
+y = y[idx][:num_inputs]
+weights = weights[idx].astype('float32')[:num_inputs]
 
 tr = 8000
 
-#data1=data['image'].reshape((data.shape[0], 1, 25, 25)).astype('float32')
-#data1 = data.reshape(data.shape[0], -1)
-data1= np.random.rand(100,1,25,25)
-print data1.shape
-#data1 = (data1 / np.sqrt((data1 ** 2).sum(-1))[:, None]).reshape((data1.shape[0], 1, 25, 25))
-
-#print 'training!'
-
 try:
-#    print 'try1'
+
     h = dl.fit(X[:tr], y[:tr], batch_size=3*32, nb_epoch=20, show_accuracy=True, 
 	               validation_data = (X[tr:], y[tr:]), 
 	               callbacks = 
@@ -159,12 +136,6 @@ try:
 	                   ModelCheckpoint('NewSLACNetConvNormalized-final-logloss.h5', monitor='val_loss', verbose=True, save_best_only=True),
 	                   ROCModelCheckpoint('NewSLACNetConvNormalized-final-roc.h5', X[tr:], y[tr:], weights[tr:], verbose=True)
 	               ])
-#    print 'Writting Predictions'
-#    yhat = dl.predict(data1, verbose=True).ravel()    
-
-#    print 'try2'
-                   #,sample_weight=weights[:tr])
-	               # sample_weight=np.power(weights, 0.7))
 except KeyboardInterrupt:
 	print 'ended early!'
 

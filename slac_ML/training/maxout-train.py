@@ -18,9 +18,6 @@ from sklearn.metrics import roc_curve, auc
 
 from viz import *
 
-
-num_inputs= 10000 #1000000
-
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -75,11 +72,14 @@ log('convering to images...')
 X = data['image'].reshape((data.shape[0], 25 ** 2)).astype('float32')
 y = data['signal'].astype('float32')
 
+num_inputs= 10000 #1000000
+
 log('extracting weights...')
 signal, pt, mass, tau_21 = data['signal'], data['jet_pt'], data['jet_mass'], data['tau_21']
 
 signal = (signal == 1)
 background = (signal == False)
+
 
 
 # -- calculate the weights
