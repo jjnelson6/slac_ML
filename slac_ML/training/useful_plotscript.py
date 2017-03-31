@@ -35,7 +35,7 @@ weights[signal] = get_weights(reference_distribution, pt[signal],
 weights[background] = get_weights(reference_distribution, pt[background], 
 	bins=np.linspace(250, 300, 200))
 
-y_dl= np.load(network_eval[0])
+y_dl= np.load(network_eval)
 
 #Plots Curves
 discs = {}
