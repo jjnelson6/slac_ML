@@ -1,0 +1,19 @@
+import pickle
+import ROOT as R
+
+R.gROOT.SetBatch(1)
+
+ljmetDir = '/user_data/nelson/CMSSW_8'
+samplefile = 
+
+tFile = R.TFile.Open(ljmetDir+samplefile, "read")
+branchJetAk8 = tFile.UseBranch("JetAK8")
+branchCaloTower= tFile.UseBranch("CaloTower")
+allEntries= tFile.GetEntries()
+
+print allEntries
+
+for entry in allEntries:       
+      for ijet in range(branchJetAK8.GetEntriesFast()):
+            jet= branchJetAK8[ijet]
+            print 'event:',jet,'jet#:',ijet,'AK8_pT:',jet.PT

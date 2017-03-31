@@ -151,16 +151,16 @@ print data1.shape
 
 try:
 #    print 'try1'
-#    h = dl.fit(X[:tr], y[:tr], batch_size=3*32, nb_epoch=20, show_accuracy=True, 
-#	               validation_data = (X[tr:], y[tr:]), 
-#	               callbacks = 
-#	               [
-#	                   EarlyStopping(verbose=True, patience=10, monitor='val_loss'),
-#	                   ModelCheckpoint('NewSLACNetConvNormalized-final-logloss.h5', monitor='val_loss', verbose=True, save_best_only=True),
-#	                   ROCModelCheckpoint('NewSLACNetConvNormalized-final-roc.h5', X[tr:], y[tr:], weights[tr:], verbose=True)
-#	               ])
-    print 'Writting Predictions'
-    yhat = dl.predict(data1, verbose=True).ravel()    
+    h = dl.fit(X[:tr], y[:tr], batch_size=3*32, nb_epoch=20, show_accuracy=True, 
+	               validation_data = (X[tr:], y[tr:]), 
+	               callbacks = 
+	               [
+	                   EarlyStopping(verbose=True, patience=10, monitor='val_loss'),
+	                   ModelCheckpoint('NewSLACNetConvNormalized-final-logloss.h5', monitor='val_loss', verbose=True, save_best_only=True),
+	                   ROCModelCheckpoint('NewSLACNetConvNormalized-final-roc.h5', X[tr:], y[tr:], weights[tr:], verbose=True)
+	               ])
+#    print 'Writting Predictions'
+#    yhat = dl.predict(data1, verbose=True).ravel()    
 
 #    print 'try2'
                    #,sample_weight=weights[:tr])
