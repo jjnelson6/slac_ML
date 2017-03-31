@@ -10,7 +10,6 @@ import logging
 
 from keras.models import Sequential, model_from_yaml
 from keras.layers.core import *
-#from keras.layers import containers
 from keras.optimizers import *
 from keras import regularizers
 from keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
@@ -20,7 +19,7 @@ from sklearn.metrics import roc_curve, auc
 from viz import *
 
 
-val= 10000 #1000000
+num_inputs= 10000 #1000000
 
 LOGGER_PREFIX = ' %s'
 logging.basicConfig(level=logging.INFO)
@@ -76,7 +75,6 @@ log('convering to images...')
 X = data['image'].reshape((data.shape[0], 25 ** 2)).astype('float32')
 y = data['signal'].astype('float32')
 
-#print len(data['image'])
 log('extracting weights...')
 signal, pt, mass, tau_21 = data['signal'], data['jet_pt'], data['jet_mass'], data['tau_21']
 
@@ -96,32 +94,26 @@ weights[signal] = get_weights(reference_distribution, pt[signal],
 
 weights[background] = get_weights(reference_distribution, pt[background], 
     bins=np.linspace(250, 300, 200))
-# weights[signal] = get_weights(pt[signal != 1], pt[signal], 
-#   bins=np.concatenate((
-#       np.linspace(200, 300, 1000), np.linspace(300, 1005, 500)))
-#   )
 
 idx = range(X.shape[0])
 np.random.shuffle(idx)
-X = X[idx][:val]
+X = X[idx][:num_inputs]
 
 # -- if you want to norm
 # norms = np.sqrt((X ** 2).sum(-1))
 # X = (X / norms[:, None])
 
-y = y[idx][:val]#1000000
-weights = weights[idx].astype('float32')[:val]
+y = y[idx][:num_inputs]#1000000
+weights = weights[idx].astype('float32')[:num_inputs]
 
 
 
 #from sklearn.cross_validation import KFold
 from sklearn.model_selection import KFold
 try:
-#KFold(X.shape[0],10)
     kf = KFold(n_splits=10)
     foldN = 1
     for train_ix, test_ix in kf.split(X):
-    #for train_ix, test_ix in kf:
         log('Working on fold: {}'.format(foldN))
 
         log('Building new submodel...')
@@ -149,8 +141,6 @@ try:
         dl.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         log('training!')
-
-        #print weights[train_ix]
         
     	h = dl.fit(X[train_ix], y[train_ix], batch_size=32, nb_epoch=50, show_accuracy=True, 
     	               validation_data=(X[test_ix], y[test_ix]), 
@@ -161,7 +151,7 @@ try:
     	                   ROCModelCheckpoint('../../../training_output/10k-SLACNormalized-final-roc-cvFold{}.h5'.format(foldN), X[test_ix], y[test_ix], weights[test_ix], verbose=True)
     	               ],
                        sample_weight=weights[train_ix]
-                )
+                ) 
         foldN += 1
 	               # sample_weight=np.power(weights, 0.7))
 except KeyboardInterrupt:
