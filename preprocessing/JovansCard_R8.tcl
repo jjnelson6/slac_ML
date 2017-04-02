@@ -43,7 +43,7 @@ set ExecutionPath {
   JetFlavorAssociationAK8
 
   GenParticleFilter
-
+  TauTagging
 
 
   TreeWriter
@@ -281,7 +281,7 @@ module Calorimeter Calorimeter {
 #    add EtaPhiBins $eta $PhiBins
 #  }
 
-    for {set i -28} {$i <= 29} {incr i} {
+    for {set i -31} {$i <= 32} {incr i} {
     set eta [expr {$i * 0.0714}]
     add EtaPhiBins $eta $PhiBins
   }
@@ -509,6 +509,29 @@ module JetPileUpSubtractor JetPileUpSubtractorAK8 {
   set JetPTMin 15.0
 }
 
+#############
+# tau-tagging
+#############
+
+module TauTagging TauTagging {
+  set ParticleInputArray Delphes/allParticles
+  set PartonInputArray Delphes/partons
+  set JetInputArray JetEnergyScale/jets
+  set OutputArray tau
+
+  set DeltaR 0.8
+
+  set TauPTMin 1.0
+
+  set TauEtaMax 2.5
+
+  # add EfficiencyFormula {abs(PDG code)} {efficiency formula as a function of eta and pt}
+
+  # default efficiency formula (misidentification rate)
+  add EfficiencyFormula {0} {0.01}
+  # efficiency formula for tau-jets
+  add EfficiencyFormula {15} {0.6}
+}
 
 ##################
 # Jet Energy Scale
@@ -572,7 +595,7 @@ module TreeWriter TreeWriter {
   add Branch EFlowMergerCHS/eflow EFlowTower Tower
   add Branch Calorimeter/towers CaloTower Tower
 #  add Branch Calorimeter/edges CaloEdges Tower
-
+  add Branch TauTagging/tau TauTagging Tau 
   add Branch JetEnergyScaleAK8/jets JetAK8 Jet
 
 }
