@@ -7,6 +7,7 @@ from keras.optimizers import SGD, RMSprop, Adagrad, Adam
 from keras import regularizers
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 import numpy as np
+import matplotlib.pyplot as plt 
 from matplotlib.colors import LogNorm
 from viz import *
 from likelihood import *
