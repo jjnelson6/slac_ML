@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import math as m
+from jettools import plot_mean_jet, buffer_to_jet, is_signal
+
+
 R.gROOT.SetBatch(1)
 
 ljmetDir = '/user_data/nelson/CMSSW_8_0_4/src/Delphes'
@@ -48,27 +51,31 @@ for event in tTree:
                        phidistance= int(abs(event.CaloTower_PHI[calo]-phicenter)/(m.pi/44))
                        
                        if (etacenter > event.CaloTower_ETA[calo] and phicenter > event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
-                            Jetarray[12-etadistance][12-phidistance]=event.CaloTower_ET[calo]
+                            Jetarray[12-etadistance][12-phidistance]=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter)
                              #print etacenter, phicenter,event.CaloTower_ETA[calo], event.CaloTower_PHI[calo]
                              #print etadistance, phidistance
                             # continue
                        elif (etacenter > event.CaloTower_ETA[calo] and phicenter < event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
-                             Jetarray[12-etadistance][12+phidistance]=event.CaloTower_ET[calo]
+                             Jetarray[12-etadistance][12+phidistance]=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter)
                              
                        elif (etacenter < event.CaloTower_ETA[calo] and phicenter > event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
-                             Jetarray[12+etadistance][12-phidistance]=event.CaloTower_ET[calo]
+                             Jetarray[12+etadistance][12-phidistance]=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter)
                              #print etacenter, phicenter ,event.CaloTower_ETA[calo], event.CaloTower_PHI[calo]
                              #print etadistance, phidistance
 
                        elif (etacenter < event.CaloTower_ETA[calo] and phicenter < event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
-                             Jetarray[12+etadistance][12+phidistance]=event.CaloTower_ET[calo]
+                             Jetarray[12+etadistance][12+phidistance]=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter)
                              
             
             entries.append(Jetarray) 
             #print count
-            
+ 
+
+#buff= buffer_to_jet(entries, 1,  max_entry=100000, pix=25)
+
+           
 plot_mean_jet(entries).savefig('test_signal_avg.pdf')
-#np.savez('Jet_test_plot',images=entries)
+#np.savez('Jet_test_plot',images=buff)
 
 #                
                        #print 'LowerBinETA:', event.CaloEdgeEtaMin[calo], ' HigherBinEta:',event.CaloEdgeEtaMax[calo], ' LowerBinPhi:',event.CaloEdgePhiMin[calo], ' CaloET:',event.CaloTower_ET[calo]
