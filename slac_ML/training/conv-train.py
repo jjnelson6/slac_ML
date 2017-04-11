@@ -116,11 +116,11 @@ weights[signal] = get_weights(reference_distribution, pt[signal],
 weights[background] = get_weights(reference_distribution, pt[background], 
     bins=np.linspace(250, 300, 200))
 
-num_inputs=2000000
+num_inputs=1000
 
 idx = range(X.shape[0])
 np.random.shuffle(idx)
-X = X[idx][:val]
+X = X[idx][:num_inputs]
 y = y[idx][:num_inputs]
 weights = weights[idx].astype('float32')[:num_inputs]
 

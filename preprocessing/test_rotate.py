@@ -15,7 +15,7 @@ def plot_mean_jet(rec, field = 'images', title = 'Average Jet Image'):
     return fig
 
 
-data=np.load("../../CMSSW_8_0_4/src/Delphes/Wprime.npz")
+data=np.load("../../CMSSW_8_0_4/src/Delphes/Wprime_all.npz")
 
 temp= {}
 temp['images'] = data['image']
@@ -36,7 +36,7 @@ for k in range(len(temp['images'])):
     e_norm = np.linalg.norm(image)
    
     if e_norm>0:
-        rot.append((image / e_norm).astype('float32'))
+        rot.append((image).astype('float32'))
 
 #print rot.shape
 

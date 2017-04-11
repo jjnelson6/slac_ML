@@ -11,7 +11,7 @@ class ExRootTreeReader;
 class ExRootResult;
 #endif
 
-void AnalyseEvents(ExRootTreeReader *treeReader)
+void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
 {
   TClonesArray *branchCaloTower = treeReader->UseBranch("CaloTower");
   //TClonesArray *branchEFlowTower = treeReader->UseBranch("EFlowTower");
@@ -29,17 +29,18 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
   Jet *jet;
   TObject *object;
 
-  //TLorentzVector momentum;
+  TLorentzVector lmomentum;
+  TLorentzVector smomentum;
 
   //  Float_t eem, ehad;
   //Bool_t skip;
 
   Long64_t entry;
-
+  Int_t count_entries=0;
   Int_t i, j, k, pdgcode;
-  Int_t etaBinEdge, etaBins = 31; //half of total number of bins
+  Int_t etaBinEdge, etaBins = 34; //half of total number of bins
   Float_t etaBinStep = .0714;
-  Float_t etaLowEdge = -2.2134;
+  Float_t etaLowEdge = -2.4276;
   
   const Float_t pi = 3.14159;
   Int_t phiBinEdge, phiBins=44; //half of total number of  bins
@@ -48,10 +49,13 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
   Int_t count_tower=0;
   
   TTree *outputTree = new TTree("jetgrids","jetgrids");
-  outputfile= new TFile("delphes-tree-grids.root","recreate");
-  vector<float> CaloTower_ET;
+  outputfile= new TFile(outTree,"recreate");
+
   vector<float> JetAK8_ETA;
   vector<float> JetAK8_PHI;
+  vector<float> JetAK8_PT;
+  vector<float> JetAK8_MASS;
+  vector<float> CaloTower_ET;
   vector<float> CaloEdgeEtaMin;
   vector<float> CaloEdgeEtaMax;
   vector<float> CaloEdgePhiMax;
@@ -59,11 +63,12 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
   vector<float> CaloTower_ETA;
   vector<float> CaloTower_PHI;
   
-
   outputTree->Branch("CaloTower_ET",&CaloTower_ET);
   outputTree->Branch("JetAK8_ETA",&JetAK8_ETA);
   outputTree->Branch("JetAK8_PHI",&JetAK8_PHI);
   outputTree->Branch("JetAK8_ET",&JetAK8_ETA);
+  outputTree->Branch("JetAK8_PT",&JetAK8_PT);
+  outputTree->Branch("JetAK8_MASS",&JetAK8_MASS);
   outputTree->Branch("CaloEdgeEtaMin",&CaloEdgeEtaMin);
   outputTree->Branch("CaloEdgeEtaMax",&CaloEdgeEtaMax);
   outputTree->Branch("CaloEdgePhiMin",&CaloEdgePhiMin);
@@ -76,6 +81,9 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
     treeReader->ReadEntry(entry);
     JetAK8_ETA.clear();
     JetAK8_PHI.clear();
+    JetAK8_PT.clear();
+    JetAK8_MASS.clear();
+
     CaloTower_ET.clear();
     CaloEdgeEtaMin.clear();
     CaloEdgeEtaMax.clear();
@@ -84,31 +92,32 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
     CaloTower_ETA.clear();
     CaloTower_PHI.clear();
 
-  
+    count_entries+=1;
     for(i = 0; i < branchJetAK8->GetEntriesFast(); ++i){
       jet = (Jet*) branchJetAK8->At(i);
      
-      //	  momentum.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
-      
+      //       lmomentum.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
+      //smomentum.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
       //Selecting Jet PT
-      if (jet->PT >= 200 and jet->PT <= 300){
+      if ((jet->PT >= 200 and jet->PT <= 300) and (jet->Mass>65 and jet->Mass <95)){
 	
 	
 	// Find jet center
 	double etacenter = jet->Eta;
 	double phicenter = jet->Phi;
 	
-
+	
 	// toss jets too close to the eta edges
 	if(abs(etacenter) > (abs(etaLowEdge)-12*etaBinStep)) continue; 
 	
-	cout<< "Jet#:"<<i<<" etacenter:"<< etacenter<<" phicenter:"<< phicenter<<endl;
 	count_jet+=1;
-
+	//cout<< "Jet#:"<<i<<" etacenter:"<< etacenter<<" phicenter:"<< phicenter<< " #"<<branchJetAK8->GetEntriesFast()<<endl;
+	cout<< "Jet#:"<<i<<" etacenter:"<< etacenter<<" phicenter:"<< phicenter<<" JetPT:" <<jet->PT  << " #"<<branchJetAK8->GetEntriesFast()<<endl;
 	JetAK8_ETA.push_back(etacenter);
 	JetAK8_PHI.push_back(phicenter);
-
-
+	JetAK8_PT.push_back(jet->PT);
+	JetAK8_MASS.push_back(jet->Mass);
+	
 	// Find distance from lowest eta.
 	double etaToLowEdge = etacenter - etaLowEdge;
 	double phiToLowEdge = phicenter;  
@@ -142,11 +151,11 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
 	  tower = (Tower*) branchCaloTower->At(k);
 	  
 	  // skip towers that are lower than low eta or higher than high eta
-	  if(tower->Edges[0] < (etaLowEdge + (etaIndex-12)*etaBinStep) || tower->Edges[0] > (etaLowEdge + (etaIndex+13)*etaBinStep)) continue;
+	  if(tower->Edges[0] <= (etaLowEdge + (etaIndex-12)*etaBinStep) || tower->Edges[0] >= (etaLowEdge + (etaIndex+13)*etaBinStep)) continue;
 	  
 	  
 	  // skip towers that are in between low phi and high phi (since it wraps)
-	  if(tower->Edges[2] < phiLowEdge || tower->Edges[2] > phiHighEdge) continue;
+	  if(tower->Edges[2] <= phiLowEdge || tower->Edges[2] >= phiHighEdge) continue;
 	  count_tower+=1;
 	  // cout<<"PhiLow:"<<phiLowEdge <<" Phihigh:"<<phiHighEdge<<" toweredge:"<<tower->Edges[2]<<endl;
 	  CaloTower_ET.push_back(tower->ET);
@@ -157,14 +166,25 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
 	  CaloTower_PHI.push_back(tower->Phi);
 	  CaloTower_ETA.push_back(tower->Eta);
 	  
-	  cout << "LowEdgeEta:"<<tower->Edges[0] << " HighEdgeEta:" << tower->Edges[1]<< " Lowedge Phi:" << tower->Edges[2] << " ET:" << tower->ET<<endl;
-	  cout<< "calo Phi: "<<tower->Phi<<" calo Eta:"<<tower->Eta<<endl; //" ET Phi:"<<tower->Phi<<" ET Eta:"<<tower->Eta <<endl;//<< " Tower#:" <<count_tower<< endl;
+	  //int diffeta= abs((tower->Eta-etacenter)/etaBinStep);
+	  //int diffphi= abs((tower->Phi-phicenter)/phiBinStep);
+	  //if ( diffeta>12 || diffphi>12 )
+	  // {
+	  //   cout<< "diffeta:"<<diffeta<<" diffphi:"<<diffphi<<endl;
+	  //   cout<<" etacenter:"<<etacenter<<" phicenter:"<<phicenter<<endl;
+	  //   cout<<" CalEta:"<<tower->Eta<< " CalPhi:"<<tower->Phi<<endl;
+	  //}
+	  // cout << "LowEdgeEta:"<<tower->Edges[0] << " HighEdgeEta:" << tower->Edges[1]<< " Lowedge Phi:" << tower->Edges[2]<< " Highedge Phi:"<<tower->Edges[3] <<endl; //<< " ET:" << tower->ET<<endl;
+	  //cout<< "JetEtaLowEdge: "<< etaLowEdge+(etaIndex-12)*etaBinStep << " JetEtahigh Edge:" << etaLowEdge + (etaIndex+13)*etaBinStep<<" JetPhilowEdge:"<< phiLowEdge <<" JetPhiHighedge:"<< phiHighEdge  <<endl; 
+	  //	  cout<<" ET Phi:"<<tower->Phi<<" ET Eta:"<<tower->Eta <<endl;//<< " Tower#:" <<count_tower<< endl;
 	}
       }
     }
     outputTree->Fill(); 
   }
+
   cout<<"Jet numbers:  "<<count_jet<<" Tower numbers: "<<count_tower<<endl;
+  cout<<"entries: "<<count_entries<<endl;
   outputTree->Write();
 }
 
@@ -244,7 +264,7 @@ void AnalyseEvents(ExRootTreeReader *treeReader)
 
 
 
-void MakeJetGrids_jh( const char *inputFile)
+void MakeJetGrids_jh( const char *inputFile,const char *outputFile)
 {
   gSystem->Load("libDelphes");
 
@@ -254,5 +274,5 @@ void MakeJetGrids_jh( const char *inputFile)
   ExRootTreeReader *treeReader = new ExRootTreeReader(chain);
   ExRootResult *result = new ExRootResult();
 
-  AnalyseEvents(treeReader);
+  AnalyseEvents(treeReader,outputFile);
 }
