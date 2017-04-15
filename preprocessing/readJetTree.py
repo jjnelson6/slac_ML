@@ -1,20 +1,16 @@
+#import fileinput
+import glob
 import ROOT as R
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import math as m
-from jettools import plot_mean_jet, buffer_to_jet, is_signal
-
-
 R.gROOT.SetBatch(1)
 
-ljmetDir = '/user_data/nelson/CMSSW_8_0_4/src/Delphes'
-samplefile = '/delphes-tree-grids.root'
+#ljmetDir = '/mnt/hadoop/users/nelson/TreeGrids/'
+samplefiles = 'TreeGrids/Q*'
+output='QCD_all'
 
-tFile = R.TFile.Open(ljmetDir+samplefile, "read")
-tTree = tFile.Get("jetgrids")
-
-count=0
 entries=[]
 
 
@@ -38,46 +34,82 @@ def plot_jet(rec, title = 'Jet Image', log=True):
 
 
 
+jet_pt=[]
+jet_eta=[]
+jet_phi=[]
+jet_mass=[]
+Sublead_eta=[]
+Sublead_phi=[]
+PCeta=[]
+PCphi=[]
+signal=[]
 
-for event in tTree: 
-      count+=1
-      for ijet in range(len(event.JetAK8_ETA)):
-            Jetarray=np.array(np.zeros((25,25)))
-            etacenter=event.JetAK8_ETA[ijet]
-            phicenter=event.JetAK8_PHI[ijet]
-#            print 'jet#:',ijet,'etacenter:',event.JetAK8_ETA[ijet],'phicenter',event.JetAK8_PHI[ijet]
-            for calo in range(len(event.CaloTower_ET)):
-                       etadistance= int(abs(event.CaloTower_ETA[calo]-etacenter)/.0714)
-                       phidistance= int(abs(event.CaloTower_PHI[calo]-phicenter)/(m.pi/44))
+Delroot=glob.glob(samplefiles)
+#print Delroot
+total_count=0
+for files in Delroot:
+    print files
+    tFile = R.TFile.Open(files, "read")
+    tTree = tFile.Get("jetgrids")
+    count=0
+    for event in tTree:
+        total_count+=1
+        count+=1
+       # for ijet in range(len(event.JetAK8_ETA)):
+        Jetarray=np.array(np.zeros((25,25)))
+        etacenter=event.JetAK8_ETA
+        phicenter=event.JetAK8_PHI
+        
+        Sublead_eta.append(event.JetAK8_SubLeadingEta)
+        Sublead_phi.append(event.JetAK8_SubLeadingPhi)
+        PCeta.append(event.JetAK8_PCEta)
+        PCphi.append(event.JetAK8_PCPhi)
+        jet_pt.append(event.JetAK8_PT)
+        jet_eta.append(etacenter)
+        jet_phi.append(phicenter)
+        jet_mass.append(event.JetAK8_MASS)
+        if 'W' in files : 
+            signal.append(1)
+        else:
+            signal.append(0)
+            #print 'jet#:',ijet,'etacenter:',event.JetAK8_ETA[ijet],'phicenter',event.JetAK8_PHI[ijet]
+            #print len(event.CaloTower_ETA)
+        for calo in range(len(event.CaloTower_ET)):
+            etadistance=int(abs(event.CaloTower_ETA[calo]-etacenter)/.0714)
+            phidistance= int(abs(event.CaloTower_PHI[calo]-phicenter)/(m.pi/44))
+           # E=event.CaloTower_ETA[calo]-etacenter
+                       #P= event.CaloTower_PHI[calo]-phicenter
+                       #count+=1
                        
-                       if (etacenter > event.CaloTower_ETA[calo] and phicenter > event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
-                            Jetarray[12-etadistance][12-phidistance]=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter)
-                             #print etacenter, phicenter,event.CaloTower_ETA[calo], event.CaloTower_PHI[calo]
-                             #print etadistance, phidistance
-                            # continue
-                       elif (etacenter > event.CaloTower_ETA[calo] and phicenter < event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
-                             Jetarray[12-etadistance][12+phidistance]=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter)
-                             
-                       elif (etacenter < event.CaloTower_ETA[calo] and phicenter > event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
-                             Jetarray[12+etadistance][12-phidistance]=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter)
+#print etacenter, phicenter 
+                       #print event.CaloTower_PHI[calo], event.CaloTower_ETA[calo]
+            if (etacenter >= event.CaloTower_ETA[calo] and phicenter >= event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
+                Jetarray[12-etadistance][12-phidistance]+=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo])
+                            #print event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter), event.CaloTower_ETA[calo]-etacenter
+                            #print event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter), np.cosh(event.CaloTower_ETA[calo]-etacenter)
+            elif (etacenter >= event.CaloTower_ETA[calo] and phicenter < event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
+                Jetarray[12-etadistance][12+phidistance]+=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo])
+                           #continue
+            elif (etacenter < event.CaloTower_ETA[calo] and phicenter >= event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
+                Jetarray[12+etadistance][12-phidistance]+=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo])
                              #print etacenter, phicenter ,event.CaloTower_ETA[calo], event.CaloTower_PHI[calo]
                              #print etadistance, phidistance
-
-                       elif (etacenter < event.CaloTower_ETA[calo] and phicenter < event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
-                             Jetarray[12+etadistance][12+phidistance]=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etacenter)
-                             
-            
-            entries.append(Jetarray) 
-            #print count
+                           #continue
+            elif (etacenter < event.CaloTower_ETA[calo] and phicenter < event.CaloTower_PHI[calo]) and (etadistance<=12 and phidistance<=12):
+                Jetarray[12+etadistance][12+phidistance]+=event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo])
+                       #print event.CaloTower_ET[calo]/np.cosh(event.CaloTower_ETA[calo]-etadistance)
+                       #print 'LowerBinETA:', event.CaloEdgeEtaMin[calo], ' HigherBinEta:',event.CaloEdgeEtaMax[calo], ' LowerBinPhi:',event.CaloEdgePhiMin[calo], ' CaloET:',event.CaloTower_ET[calo]
+                           #continue
+        entries.append(Jetarray)
  
-
-#buff= buffer_to_jet(entries, 1,  max_entry=100000, pix=25)
-
-           
-plot_mean_jet(entries).savefig('test_signal_avg.pdf')
-#np.savez('Jet_test_plot',images=buff)
+    print 'Events: ',count
+    print 'Total Events: ', total_count
+            
+plot_mean_jet(entries).savefig(output+'.pdf')
+#plot_jet(entries[0]).savefig('Wprime_few.pdf')
+np.savez(output,image=entries,signal=signal,PCEta=PCeta,PCPhi=PCphi,SubLeadingEta=Sublead_eta,SubLeadingPhi=Sublead_phi)
+#jet_pt=jet_pt,jet_eta=jet_eta,jet_phi=jet_phi,jet_mass=jet_mass,
 
 #                
-                       #print 'LowerBinETA:', event.CaloEdgeEtaMin[calo], ' HigherBinEta:',event.CaloEdgeEtaMax[calo], ' LowerBinPhi:',event.CaloEdgePhiMin[calo], ' CaloET:',event.CaloTower_ET[calo]
-            
+                       
 
