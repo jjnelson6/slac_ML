@@ -2,7 +2,7 @@
 maxout-train.py
 
 author: Luke de Oliveira (lukedeo@stanford.edu)
-
+edited: Jovan Nelson
 description: script to train a maxout net
 
 '''

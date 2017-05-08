@@ -2,6 +2,7 @@
 maxout-test.py
 
 author: Luke de Oliveira (lukedeo@stanford.edu)
+edited:Jovan Nelson
 
 description: script to load a maxout net
 
@@ -37,13 +38,17 @@ if __name__ == '__main__':
         help='path to write output predictions.')
 
     args = parser.parse_args()
+    
 
     try:
-    	from keras.models import Sequential, model_from_yaml
+        from keras.models import Sequential, model_from_yaml
         from keras.layers.core import *
+        from MaxoutDense import *
         from keras.optimizers import *
         from keras import regularizers
-        from keras.callbacks import EarlyStopping, ModelCheckpoint
+        from keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
+
+
     except ImportError:
     	sys.stderr.write('[ERROR] Keras not found!')
     	sys.exit(1)
@@ -75,7 +80,7 @@ if __name__ == '__main__':
     dl.load_weights(WEIGHT_FILE)
 
     log('Compiling')
-    dl.compile(loss='binary_crossentropy', optimizer='sgd', class_mode='binary')
+    dl.compile(loss='binary_crossentropy', optimizer='adam')
 
 
     TEST_DATA = args.data

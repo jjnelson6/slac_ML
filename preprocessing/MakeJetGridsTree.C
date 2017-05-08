@@ -15,6 +15,7 @@ class ExRootResult;
 void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
 {
   TClonesArray *branchCaloTower = treeReader->UseBranch("CaloTower");
+  //TClonesArray *branchEFlowTower = treeReader->UseBranch("EFlowTower");
   TClonesArray *branchJetAK8 = treeReader->UseBranch("JetAK8");
 
   Long64_t allEntries = treeReader->GetEntries();
@@ -22,6 +23,8 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
   cout << "** Chain contains " << allEntries << " events" << endl;
 
   GenParticle *particle;
+  //Electron *electron;
+  //Photon *pho
   Tower *tower;
 
   Jet *jet;
@@ -29,6 +32,10 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
 
   TLorentzVector subjet1;
   TLorentzVector subjet2;
+
+
+  //  Float_t eem, ehad;
+  //Bool_t skip;
 
   Long64_t entry;
   Int_t count_entries=0;
@@ -115,9 +122,11 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
     for(i = 0; i < branchJetAK8->GetEntriesFast(); ++i){
       jet = (Jet*) branchJetAK8->At(i);
      
-        //Selecting Jet PT
-      if (jet->PT > 300 or  jet->PT < 200) continue;
-      if (jet->Mass > 95 or jet->Mass < 65) continue;
+      //lmomentum.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
+      //smomentum.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
+      //Selecting Jet PT
+      if (jet->PT < 200 or jet->PT > 300) continue;
+      if (jet->Mass < 65 or jet->Mass > 95) continue;
 
       if (jet->PT > maxpt){
 	maxpt = jet->PT;
@@ -142,8 +151,9 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
     JetAK8_PCPhi = -99;
 
     if(jet->NSubJetsSoftDropped > 1){
-      subjet1=jet->SoftDroppedP4[1];
-      subjet2=jet->SoftDroppedP4[2];
+      subjet1 = jet->SoftDroppedP4[1];
+       subjet2 = jet->SoftDroppedP4[2];
+    
       JetAK8_LsubjetPt = subjet1.Pt();
       JetAK8_LsubjetEta = subjet1.Eta();
       JetAK8_LsubjetPhi = subjet1.Phi();
@@ -156,7 +166,7 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
 
       if(subjet1.Pt() < subjet2.Pt()) cout << "subjets might not be pt ordered" << endl;
     }
-    
+
     // save tau
     JetAK8_Tau1 = jet->Tau[0];
     JetAK8_Tau2 = jet->Tau[1];
@@ -170,7 +180,8 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
     if(abs(etacenter) > (abs(etaLowEdge)-12*etaBinStep)) continue; 
     
     count_jet+=1;
-     cout<< "Jet#:"<<i<<" etacenter:"<< etacenter<<" phicenter:"<< phicenter<<" JetPT:" <<jet->PT  << " #"<<branchJetAK8->GetEntriesFast()<<endl;
+    //cout<< "Jet#:"<<i<<" etacenter:"<< etacenter<<" phicenter:"<< phicenter<< " #"<<branchJetAK8->GetEntriesFast()<<endl;
+    cout<< "Jet#:"<<i<<" etacenter:"<< etacenter<<" phicenter:"<< phicenter<<" JetPT:" <<jet->PT  << " #"<<branchJetAK8->GetEntriesFast()<<endl;
 
     JetAK8_ETA = etacenter;
     JetAK8_PHI = phicenter;
@@ -363,15 +374,3 @@ void MakeJetGridsTree_Julie( const char *inputFile,const char *outputFile)
 
   AnalyseEvents(treeReader,outputFile);
 }
-
-      //int diffeta= abs((tower->Eta-etacenter)/etaBinStep);
-      //int diffphi= abs((tower->Phi-phicenter)/phiBinStep);
-      //      if ( diffeta>12 || diffphi>12 )
-      //	{
-      // cout<< "diffeta:"<<diffeta<<" diffphi:"<<diffphi<<endl;
-      // cout<<" etacenter:"<<etacenter<<" phicenter:"<<phicenter<<endl;
-      // cout<<" CalEta:"<<tower->Eta<< " CalPhi:"<<tower->Phi<<endl;
-      //}
-      //      cout << "LowEdgeEta:"<<tower->Edges[0] << " HighEdgeEta:" << tower->Edges[1]<< " Lowedge Phi:" << tower->Edges[2]<< " Highedge Phi:"<<tower->Edges[3] <<endl; //<< " ET:" << tower->ET<<endl;
-      //cout<< "JetEtaLowEdge: "<< etaLowEdge+(etaIndex-12)*etaBinStep << " JetEtahigh Edge:" << etaLowEdge + (etaIndex+13)*etaBinStep<<" JetPhilowEdge:"<< phiLowEdge <<" JetPhiHighedge:"<< phiHighEdge  <<endl; 
-      //	  cout<<" ET Phi:"<<tower->Phi<<" ET Eta:"<<tower->Eta <<endl;//<< " Tower#:" <<count_tower<< endl;

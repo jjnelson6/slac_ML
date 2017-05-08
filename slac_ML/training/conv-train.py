@@ -6,7 +6,7 @@ author: Luke de Oliveira (lukedeo@stanford.edu)
 description: script to train a conv net
 
 '''
-from keras.models import Sequential #model_from_yaml
+from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, MaxoutDense, Activation, Flatten #Merge 
 from N_with_LRN2D import LRN2D
 #from keras.layers import containers
@@ -49,16 +49,16 @@ print 'Constructing net'
 #FILTER_SIZES = [(11, 11), (3, 3), (3, 3), (3, 3)]
 
 dl = Sequential()
-dl.add(Convolution2D(32, 11,11, input_shape=(1, 25, 25), border_mode='valid',W_regularizer=regularizers.l2(0.01)))
+dl.add(Convolution2D(32,11,11, input_shape=(1, 25, 25),border_mode='valid',W_regularizer=regularizers.l2(0.01)))
 dl.add(Activation('relu'))
 dl.add(MaxPooling2D((2, 2)))
 
-dl.add(Convolution2D(32, 3, 3, border_mode='valid', W_regularizer=regularizers.l2(0.01)))
+dl.add(Convolution2D(32, 3, 3, border_mode='valid',W_regularizer=regularizers.l2(0.01)))
 dl.add(Activation('relu'))
 dl.add(MaxPooling2D((3, 3)))
 
 #*FILTER_SIZES[2]
-dl.add(Convolution2D(32, 3, 3, border_mode='valid', W_regularizer=regularizers.l2(0.01)))
+dl.add(Convolution2D(32, 3, 3, border_mode='valid',W_regularizer=regularizers.l2(0.01)))
 dl.add(Activation('relu'))
 dl.add(MaxPooling2D((3, 3)))
 
