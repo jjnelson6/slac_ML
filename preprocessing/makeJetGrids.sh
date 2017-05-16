@@ -19,7 +19,7 @@ cd $runDir
 eval `scramv1 runtime -sh`
 #export PATH=$PATH:$runDir
 
-root -l -b -q MakeJetGridsTree_Julie.C\(\"$inputDir/$infilename\",\"$outfilename\"\)
+root -l -b -q MakeJetGridsTree.C\(\"$inputDir/$infilename\",\"$outfilename\"\)
 
 cp $outfilename $outputDir
 rm $outfilename

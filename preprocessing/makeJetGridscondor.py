@@ -9,7 +9,7 @@ shift = sys.argv[1]
 
 #IO directories must be full paths
 
-relbase = '/user_data/nelson/CMSSW_8_0_4/'
+#relbase = '/user_data/nelson/CMSSW_8_0_4/'
 inputDir='/mnt/hadoop/users/nelson/DelphesJets/'+shift+'/'
 outputDir= '/mnt/hadoop/users/nelson/GridTree/'+shift+'/'
 
@@ -39,7 +39,7 @@ for file in rootfiles:
     rawname = file[:-6]
     
     count+=1
-    dict={'RUNDIR':runDir, 'CONDORDIR':condorDir, 'INPUTDIR':inputDir, 'FILENAME':rawname, 'PROXY':proxyPath, 'CMSSWBASE':relbase, 'OUTPUTDIR':outputDir}
+    dict={'RUNDIR':runDir, 'CONDORDIR':condorDir, 'INPUTDIR':inputDir, 'FILENAME':rawname, 'PROXY':proxyPath, 'OUTPUTDIR':outputDir}
     jdfName=condorDir+'/%(FILENAME)s.job'%dict
     print jdfName
     jdf=open(jdfName,'w')

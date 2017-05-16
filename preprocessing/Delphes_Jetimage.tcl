@@ -261,31 +261,19 @@ module Calorimeter Calorimeter {
   # each list starts with the lower edge of the first tower
   # the list ends with the higher edged of the last tower
 
-  # 25X25 Jet-image bins
-
-
- #   set Phibins {}
- #   for {set i-44}{$i <=44}{incr i}{
-  #      add Phibins[expr{$i *$pi/44}]
-  #  }
-  #  foreach eta {-0.8568 -0.7854 -0.7140 -0.6426 -0.5712 -0.4998 -0.4284 -0.3570 -0.2856 -0.2142 -0.1428 -0.0714 0.0 0.0714 0.1428 0.2142 0.2856 0.3570 0.4284 0.4998 0.5712 0.6426 0.7140 0.7854 0.8568}{
- #       add etaPhibins $eta $Phibins
- #   }
-
-
   set PhiBins {}
   for {set i -44} {$i <= 44} {incr i} {
     add PhiBins [expr {$i * $pi/44.0}]
   }
- # foreach eta {-0.9996 -0.9282 -0.8568 -0.7854 -0.7140 -0.6426 -0.5712 -0.4998 -0.4284 -0.3570 -0.2856 -0.2142 -0.1428 -0.0714 0.0 0.0714 0.1428 0.2142 0.2856 0.3570 0.4284 0.4998 0.5712 0.6426 0.7140 0.7854 0.8568 0.9282} {
-#    add EtaPhiBins $eta $PhiBins
-#  }
 
     for {set i -31} {$i <= 32} {incr i} {
     set eta [expr {$i * 0.0714}]
     add EtaPhiBins $eta $PhiBins
   }
 
+ # foreach eta {-0.9996 -0.9282 -0.8568 -0.7854 -0.7140 -0.6426 -0.5712 -0.4998 -0.4284 -0.3570 -0.2856 -0.2142 -0.1428 -0.0714 0.0 0.0714 0.1428 0.2142 0.2856 0.3570 0.4284 0.4998 0.5712 0.6426 0.7140 0.7854 0.8568 0.9282} {
+#    add EtaPhiBins $eta $PhiBins
+#  }
 
 
     # default energy fractions {abs(PDG code)} {Fecal Fhcal}

@@ -150,22 +150,28 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
     JetAK8_PCEta = -99;
     JetAK8_PCPhi = -99;
 
-    if(jet->NSubJetsSoftDropped > 1){
+    if(jet->NSubJetsSoftDropped > 0){
       subjet1 = jet->SoftDroppedP4[1];
-       subjet2 = jet->SoftDroppedP4[2];
-    
       JetAK8_LsubjetPt = subjet1.Pt();
       JetAK8_LsubjetEta = subjet1.Eta();
       JetAK8_LsubjetPhi = subjet1.Phi();
+    }
+
+    if(jet->NSubJetsSoftDropped > 1) {
+      
+      subjet2 = jet->SoftDroppedP4[2];  
       JetAK8_SLsubjetPt = subjet2.Pt();
       JetAK8_SLsubjetEta = subjet2.Eta();
       JetAK8_SLsubjetPhi = subjet2.Phi();
       
       JetAK8_SubLeadingEta = subjet2.Eta() - subjet1.Eta();
       JetAK8_SubLeadingPhi = subjet2.DeltaPhi(subjet1);
-
-      if(subjet1.Pt() < subjet2.Pt()) cout << "subjets might not be pt ordered" << endl;
+  
     }
+    
+      //if(subjet1.Pt() < subjet2.Pt()) cout << "subjets might not be pt ordered" << endl;
+     
+
 
     // save tau
     JetAK8_Tau1 = jet->Tau[0];
@@ -176,13 +182,14 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
     double etacenter = jet->Eta;
     double phicenter = jet->Phi;
     	
-    // toss jets too close to the eta edges
-    if(abs(etacenter) > (abs(etaLowEdge)-12*etaBinStep)) continue; 
     
+
+
     count_jet+=1;
     //cout<< "Jet#:"<<i<<" etacenter:"<< etacenter<<" phicenter:"<< phicenter<< " #"<<branchJetAK8->GetEntriesFast()<<endl;
     cout<< "Jet#:"<<i<<" etacenter:"<< etacenter<<" phicenter:"<< phicenter<<" JetPT:" <<jet->PT  << " #"<<branchJetAK8->GetEntriesFast()<<endl;
 
+    
     JetAK8_ETA = etacenter;
     JetAK8_PHI = phicenter;
     JetAK8_PT = jet->PT;
@@ -197,6 +204,7 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
     int phiIndex = phiToLowEdge/phiBinStep;
     
     // For phi we can wrap, so find the right high and low phi values
+    
     // For simplicity, let's always use the same corner of the bin (the bottom left corner)
     // N = 44, grid runs -44 to 44. Up = 13 above center. Down = 12 below center
     int phiIndexDn = phiIndex-12;       // downpoint = C-D 
@@ -362,7 +370,7 @@ void AnalyseEvents(ExRootTreeReader *treeReader, const char *outTree)
 }
 
 
-void MakeJetGridsTree_Julie( const char *inputFile,const char *outputFile)
+void MakeJetGridsTree( const char *inputFile,const char *outputFile)
 {
   gSystem->Load("libDelphes");
 
