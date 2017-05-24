@@ -50,7 +50,7 @@ class ROCModelCheckpoint(Callback):
                       % (epoch, 'AUC', self.best, current, self.filepath))
                 self.best = current
             self.model.save_weights(self.filepath, overwrite=True)
-          #  np.save(self.filepath.replace('.h5',''), yh.astype('float32'))
+            np.save(self.filepath.replace('.h5',''), yh.astype('float32'))
         else:
             if self.verbose > 0:
                 print("Epoch %05d: %s did not improve" % (epoch, 'AUC'))
